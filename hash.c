@@ -32,6 +32,14 @@ bool redimensionar(hash_t* hash);
 // Busca el nodo que tiene la clave
 nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave);
 
+// Busca el indice del nodo correspondiente a la clave. Si no lo encuentra devuelve -1.
+size_t buscar_indice(const hash_t *hash, const char *clave);
+
+// Guarda el nodo en el indice especificado.
+// Pre: el indice no existe en el hash.
+// Post: se guardo el nodo en el hash.
+bool guadar_nodo(hash_t *hash, nodo_hash_t *nodo);
+
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
   hash_t* hash = malloc(sizeof(hash_t));
   if(hash == NULL)
@@ -60,13 +68,18 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
       return false;
   }
 
+  nodo_hash_t* nodo_existente = buscar_nodo(hash, clave);
+  if(nodo_existente != NULL){ // La clave se encuentra en el hash
+    nodo_hash_cambiar_valor(nodo_existente, dato, hash->destruir_dato);
+    return true;
+  }
+
   nodo_hash_t* nodo = nodo_hash_crear(clave, dato);
   if(nodo == NULL)
     return false;
 
-  size_t index = obtener_indice_vacio(clave, hash->vector);
   hash->cant_elementos++;
-  return vector_guardar(hash->vector, index, nodo);
+  return guadar_nodo(hash, nodo);
 }
 
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
@@ -77,8 +90,11 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  */
 void *hash_borrar(hash_t *hash, const char *clave){
   nodo_hash_t* nodo = buscar_nodo(hash, clave);
+  if(nodo == NULL)
+    return NULL;
+
   hash->cant_elementos--;
-  return nodo == NULL ? NULL : nodo_hash_borrar(nodo);
+  return nodo_hash_borrar(nodo);
 }
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -130,12 +146,25 @@ size_t obtener_indice_vacio(const char * clave, vector_t* vector){
   return index;
 }
 
-nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave){
+size_t buscar_indice(const hash_t *hash, const char *clave){
   size_t index = hashing(clave, vector_obtener_tamanio(hash->vector));
-  while (vector_obtener(hash->vector, index) != NULL && strcmp(nodo_hash_obtener_clave(vector_obtener(hash->vector, index)), clave) && nodo_hash_obtener_estado(vector_obtener(hash->vector, index)) != VACIO)
-    index = probing(index);
+  nodo_hash_t* nodo = vector_obtener(hash->vector, index);
 
-  return vector_obtener(hash->vector, index) == NULL ? NULL : vector_obtener(hash->vector, index);
+  while (nodo != NULL && strcmp(nodo_hash_obtener_clave(nodo), clave) && nodo_hash_obtener_estado(nodo) != VACIO){
+    index = probing(index);
+    nodo = vector_obtener(hash->vector, index);
+  }
+
+  return nodo == NULL || nodo_hash_obtener_estado(nodo) == BORRADO ? -1 : index;
+}
+
+nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave){
+  return vector_obtener(hash->vector, buscar_indice(hash, clave));
+}
+
+bool guadar_nodo(hash_t *hash, nodo_hash_t *nodo){
+  size_t index = obtener_indice_vacio(nodo_hash_obtener_clave(nodo), hash->vector);
+  return vector_guardar(hash->vector, index, nodo);
 }
 
 bool redimensionar(hash_t* hash){
@@ -143,16 +172,17 @@ bool redimensionar(hash_t* hash){
   if(nuevo_vector == NULL)
     return false;
 
-  for(int i = 0; vector_obtener_tamanio(hash->vector); i++){
-    nodo_hash_t* nodo = vector_obtener(hash->vector, i);
+  vector_t * viejo_vector = hash->vector;
+  hash->vector = nuevo_vector;
+
+  for(int i = 0; i < vector_obtener_tamanio(viejo_vector); i++){
+    nodo_hash_t* nodo = vector_obtener(viejo_vector, i);
     if(nodo != NULL){
-      size_t index = obtener_indice_vacio(nodo_hash_obtener_clave(nodo), hash->vector);
-      vector_guardar(hash->vector, index, nodo);
+      guadar_nodo(hash, nodo);
     }
   }
 
-  vector_destruir(hash->vector, hash->destruir_dato);
-  hash->vector = nuevo_vector;
+  vector_destruir_sin_datos(viejo_vector);
   return true;
 }
 

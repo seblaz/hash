@@ -61,3 +61,8 @@ void vector_destruir(vector_t* vector, void destruir_dato(void *)){
   free(vector->datos);
   free(vector);
 }
+
+void vector_destruir_sin_datos(vector_t* vector){
+  free(vector->datos);
+  free(vector);
+}

@@ -49,4 +49,9 @@ bool vector_redimensionar(vector_t* vector, size_t nuevo_tam);
 // Post: se eliminaron todos los elementos del vector
 void vector_destruir(vector_t* vector, void destruir_dato(void *));
 
+// Destruye el vector sin destruir los elementos que contiene.
+// Pre: el vector fue creado
+// Post: se destruyo el vector
+void vector_destruir_sin_datos(vector_t* vector);
+
 #endif // VECTOR_DINAMICO_H
