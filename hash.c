@@ -1,19 +1,29 @@
 #include "hash.h"
 #include "vector_dinamico.h"
-#define CANT_MINIMA 10
+#include "nodo_hash.h"
+#define CAP_INICIAL  10
+#define CANT_INICIAL  0
 
 typedef struct hash{
   vector_t * vector_dinamico;
   hash_destruir_dato_t destruir_dato;
+  int capacidad;
+  int cant_elementos;
 }hash_t;
+
+size_t hashing(const char* clave, int maximo);
+
+size_t probing(size_t index);
 
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
   hash_t* hash = malloc(sizeof(hash_t));
   if(hash == NULL)
     return NULL;
 
+  // hash->capacidad       = CAP_INICIAL;
   hash->destruir_dato   = destruir_dato;
-  hash->vector_dinamico = vector_crear(CANT_MINIMA);
+  hash->cant_elementos  = CANT_INICIAL;
+  hash->vector_dinamico = vector_crear(CAP_INICIAL);
 
   if(hash->vector_dinamico != NULL)
     return hash;
@@ -28,8 +38,16 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
  * Post: Se almacenó el par (clave, dato)
  */
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
-  int index = hashing(clave);
-  
+  nodo_hash_t* nodo = nodo_hash_crear(clave, dato);
+  if(nodo == NULL)
+    return false;
+
+  size_t index = hashing(clave, hash->capacidad);
+  while (vector_obtener(hash->vector_dinamico, index) != NULL)
+    index = probing(index);
+
+  vector_guardar(hash->vector_dinamico, index, nodo);
+  return true;
 }
 
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
@@ -61,14 +79,17 @@ size_t hash_cantidad(const hash_t *hash);
  * Pre: La estructura hash fue inicializada
  * Post: La estructura hash fue destruida
  */
-void hash_destruir(hash_t *hash);
+void hash_destruir(hash_t *hash){
+  
+}
 
-int hashing(char* clave){
+// Por defecto el minimo es cero.
+size_t hashing(const char* clave, int maximo){
   return 1;
 }
 
-int probing(void){
-  return 1;
+size_t probing(size_t index){
+  return index++;
 }
 
 /* Iterador del hash */

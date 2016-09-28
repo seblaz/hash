@@ -398,6 +398,7 @@
  * *****************************************************************/
 
 #include "nodo_hash.h"
+#include "vector_dinamico.h"
 
 void pruebas_hash_catedra()
 {
@@ -416,17 +417,23 @@ void pruebas_hash_catedra()
     // printf("%s\n", "hola");
     int test = 5;
     char * clave = "vaca";
-
-    nodo_hash_t * nodo = nodo_hash_crear(clave, &test);
-    clave = "otra vaca";
-    test = 10;
-    printf("clave del nodo: %s\n", nodo_hash_obtener_clave(nodo));
-    printf("valor del nodo: %d\n",*(int*) nodo_hash_obtener_valor(nodo));
-    int test2 = 20;
-    test = 50;
-    nodo_hash_cambiar_valor(nodo, &test2, NULL);
-    printf("valor del nodo: %d\n",*(int*) nodo_hash_obtener_valor(nodo));
-    nodo_hash_destruir(nodo);
+    // //
+    // nodo_hash_t * nodo = nodo_hash_crear(clave, &test);
+    // // clave = "otra vaca";
+    // // test = 10;
+    // // int test2 = 20;
+    // // test = 50;
+    // // nodo_hash_cambiar_valor(nodo, &test2, NULL);
+    // // printf("valor del nodo: %d\n",*(int*) nodo_hash_obtener_valor(nodo));
+    // vector_t* vector = vector_crear(10);
+    // vector_guardar(vector, 0, nodo);
+    // nodo = vector_obtener(vector, 0);
+    // printf("clave del nodo: %s\n", nodo_hash_obtener_clave(nodo));
+    // printf("valor del nodo: %d\n",*(int*) nodo_hash_obtener_valor(nodo));
+    // nodo_hash_destruir(nodo);
+    // vector_destruir(vector);
+    hash_t* hash = hash_crear(NULL);
+    hash_guardar(hash, clave, &test);
 }
 
 void pruebas_volumen_catedra(size_t largo)

@@ -11,7 +11,7 @@ typedef enum{ VACIO, OCUPADO, BORRADO }estados;
 // El valor inicial del estado es OCUPADO.
 // Pre: existe espacio en memoria.
 // Post: se creo el nodo del hash.
-nodo_hash_t * nodo_hash_crear(char clave [], void * dato);
+nodo_hash_t * nodo_hash_crear(const char clave [], void * dato);
 
 // Devuele la clave del nodo.
 // Pre: el nodo fue creado.

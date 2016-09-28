@@ -9,7 +9,7 @@ typedef struct nodo_hash{
   char * clave;
 }nodo_hash_t;
 
-nodo_hash_t * nodo_hash_crear(char* clave, void * dato){
+nodo_hash_t * nodo_hash_crear(const char clave [], void * dato){
   nodo_hash_t * nodo_hash = malloc(sizeof(nodo_hash_t));
   if(nodo_hash == NULL)
     return NULL;
