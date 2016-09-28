@@ -1,23 +1,36 @@
 #include "hash.h"
 #include "vector_dinamico.h"
+#define CANT_MINIMA 10
 
 typedef struct hash{
   vector_t * vector_dinamico;
+  hash_destruir_dato_t destruir_dato;
 }hash_t;
 
-// tipo de función para destruir dato
-typedef void (*hash_destruir_dato_t)(void *);
+hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
+  hash_t* hash = malloc(sizeof(hash_t));
+  if(hash == NULL)
+    return NULL;
 
-/* Crea el hash
- */
-hash_t *hash_crear(hash_destruir_dato_t destruir_dato);
+  hash->destruir_dato   = destruir_dato;
+  hash->vector_dinamico = vector_crear(CANT_MINIMA);
+
+  if(hash->vector_dinamico != NULL)
+    return hash;
+
+  free(hash);
+  return NULL;
+}
 
 /* Guarda un elemento en el hash, si la clave ya se encuentra en la
  * estructura, la reemplaza. De no poder guardarlo devuelve false.
  * Pre: La estructura hash fue inicializada
  * Post: Se almacenó el par (clave, dato)
  */
-bool hash_guardar(hash_t *hash, const char *clave, void *dato);
+bool hash_guardar(hash_t *hash, const char *clave, void *dato){
+  int index = hashing(clave);
+  
+}
 
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
  * NULL si el dato no estaba.
@@ -49,6 +62,14 @@ size_t hash_cantidad(const hash_t *hash);
  * Post: La estructura hash fue destruida
  */
 void hash_destruir(hash_t *hash);
+
+int hashing(char* clave){
+  return 1;
+}
+
+int probing(void){
+  return 1;
+}
 
 /* Iterador del hash */
 
