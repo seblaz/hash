@@ -28,15 +28,15 @@ nodo_hash_t * nodo_hash_crear(const char clave [], void * dato){
 }
 
 char* nodo_hash_obtener_clave(nodo_hash_t * nodo){
-  return nodo->clave;
+  return nodo == NULL ? NULL : nodo->clave;
 }
 
 void* nodo_hash_obtener_valor(nodo_hash_t * nodo){
-  return nodo->valor;
+  return nodo == NULL ? NULL : nodo->valor;
 }
 
 estados nodo_hash_obtener_estado(nodo_hash_t * nodo){
-  return nodo->estado;
+  return nodo == NULL ? VACIO : nodo->estado;
 }
 
 void nodo_hash_cambiar_valor(nodo_hash_t * nodo, void * dato, void (*destruir_dato)(void *)){
@@ -52,11 +52,11 @@ void* nodo_hash_borrar(nodo_hash_t * nodo){
   return dato;
 }
 
-void* nodo_hash_destruir(nodo_hash_t * nodo){
-  void* dato = nodo->valor;
+void nodo_hash_destruir(nodo_hash_t * nodo, void (*destruir_dato_t)(void *)){
+  if(destruir_dato_t)
+    destruir_dato_t(nodo->valor);
   free(nodo->clave);
   free(nodo);
-  return dato;
 }
 
 void nodo_hash_cambiar_estado(nodo_hash_t * nodo, estados estado){

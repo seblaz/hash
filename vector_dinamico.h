@@ -25,7 +25,7 @@ vector_t* vector_crear(size_t tam);
 // dependiedo si se pudo guardar el valor en la posicion.
 // Pre: el vector fue creado
 // Post: se almacenó el valor en la posición pos.
-bool vector_guardar(vector_t* vector, size_t pos, void* valor);
+bool vector_guardar(vector_t* vector, size_t pos, nodo_hash_t* valor);
 
 // Devuelve el dato guardado en la posición pos del vector.
 // Si la posicion pos es invalida devuelve NULL.
@@ -47,6 +47,6 @@ bool vector_redimensionar(vector_t* vector, size_t nuevo_tam);
 // Destruye el vector
 // Pre: el vector fue creado
 // Post: se eliminaron todos los elementos del vector
-void vector_destruir(vector_t* vector);
+void vector_destruir(vector_t* vector, void destruir_dato(void *));
 
 #endif // VECTOR_DINAMICO_H

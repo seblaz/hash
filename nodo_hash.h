@@ -34,13 +34,14 @@ estados nodo_hash_obtener_estado(nodo_hash_t * nodo);
 // Post: se cambio el valor del nodo.
 void nodo_hash_cambiar_valor(nodo_hash_t * nodo, void * dato, void (*destruir_dato)(void *));
 
-// Destruye el nodo de hash y devuele el dato almacenado en el nodo.
+// Destruye el nodo de hash. Si la funcion destruir_dato es pasada
+// por parametro aplica dicha funcion al dato almacenado en el nodo.
 // Pre: el nodo fue creado.
 // Post: se destruyo el nodo.
-void* nodo_hash_destruir(nodo_hash_t * nodo);
+void nodo_hash_destruir(nodo_hash_t * nodo, void (*destruir_dato_t)(void *));
 
-// Cambia el estado del nodo a BORRADO, borra el valor del nodo
-// y devuele el dato almacenado en el nodo.
+// Cambia el estado del nodo a BORRADO, el valor del nodo pasa a
+// NULL y devuele el dato almacenado en el nodo.
 // Pre: el nodo fue creado.
 // Post: se borro el nodo.
 void* nodo_hash_borrar(nodo_hash_t * nodo);
