@@ -206,7 +206,7 @@ hash_iter_t *hash_iter_crear(hash_t *hash){
 	} 
 	iter->hash_iter = hash;
 	iter->actual = CANT_INICIAL;
-	iter->iter_fin = false;
+	
 	return iter;
 	
 }
@@ -222,7 +222,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){//necesito tener bien la estructura de
 	}
 		
 	if(iter->actual == total_pos){
-		iter->iter_fin = true; //para manejar mas facil el iter_al_final
+		
 		return false;
 	}
 	
@@ -243,7 +243,7 @@ const char *hash_iter_ver_actual(const hash_iter_t *iter){
 
 // Comprueba si terminó la iteración
 bool hash_iter_al_final(const hash_iter_t *iter){
-	if(iter->iter_fin){
+	if(iter->actual == vector_obtener_tamanio(iter->hash_iter->vector)){
 		return true;
 	}
 	return false;
