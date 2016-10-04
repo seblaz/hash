@@ -9,12 +9,21 @@
 #define REDIMENSIONAR_POR_MIN 0.2
 #define PORC_REDIMENSIONAR 2
 
+
+
+
 typedef struct hash{
   vector_t * vector;
   hash_destruir_dato_t destruir_dato;
   // int capacidad;
   size_t cant_elementos;
 }hash_t;
+
+typedef struct hash_iter{
+	hash_t* hash_iter;
+	bool iter_fin;
+	size_t actual;
+}hash_iter_t;
 
 // Devuelve el indice en el cual se debe guardar la clave.
 // El indice devuelto esta entre cero y maximo.
@@ -136,6 +145,7 @@ size_t hashing(const char* clave, size_t maximo){
 }
 
 size_t probing(size_t index){
+
   return ++index;
 }
 
@@ -189,16 +199,58 @@ bool redimensionar(hash_t* hash){
 /* Iterador del hash */
 
 // Crea iterador
-hash_iter_t *hash_iter_crear(const hash_t *hash);
+hash_iter_t *hash_iter_crear(hash_t *hash){
+	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
+	if(iter == NULL){
+		return NULL;
+	} 
+	iter->hash_iter = hash;
+	iter->actual = CANT_INICIAL;
+	
+	return iter;
+	
+}
 
 // Avanza iterador
-bool hash_iter_avanzar(hash_iter_t *iter);
+bool hash_iter_avanzar(hash_iter_t *iter){//necesito tener bien la estructura del vector para manejar la manera en que va a avanzar, segun los cambios que me dijiste deberia andar bien asi
+	size_t total_pos = vector_obtener_tamanio(iter->hash_iter->vector);
+	
+	//esto explota si la primera condicion no se cumple e igualmente intenta ejecutar la segunda condicion, ya que tama;o empieza por 1 y pos por 0
+	while(iter->actual != total_pos || nodo_hash_obtener_estado(vector_obtener(iter->hash_iter->vector,iter->actual))!= 1 ){
+	
+		iter->actual++;	
+	}
+		
+	if(iter->actual == total_pos){
+		
+		return false;
+	}
+	
+	return true;
+	
+
+}
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.
-const char *hash_iter_ver_actual(const hash_iter_t *iter);
+const char *hash_iter_ver_actual(const hash_iter_t *iter){
+	
+	if(hash_iter_al_final(iter)){
+		return NULL;
+	}
+	
+	return nodo_hash_obtener_clave(vector_obtener(iter->hash_iter->vector,iter->actual));
+}
 
 // Comprueba si terminó la iteración
-bool hash_iter_al_final(const hash_iter_t *iter);
+bool hash_iter_al_final(const hash_iter_t *iter){
+	if(iter->actual == vector_obtener_tamanio(iter->hash_iter->vector)){
+		return true;
+	}
+	return false;
+}
 
 // Destruye iterador
-void hash_iter_destruir(hash_iter_t* iter);
+void hash_iter_destruir(hash_iter_t* iter){
+	free(iter);
+
+}
