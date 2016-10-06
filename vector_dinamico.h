@@ -21,17 +21,11 @@ typedef struct vector vector_t;
 // Post: vector es una vector vacío de tamaño tam.
 vector_t* vector_crear(size_t tam);
 
-// Almacena el valor en la posición pos. Devuelve verdadero o falso
-// dependiedo si se pudo guardar el valor en la posicion.
-// Pre: el vector fue creado
-// Post: se almacenó el valor en la posición pos.
-bool vector_guardar(vector_t* vector, size_t pos, nodo_hash_t* valor);
-
 // Devuelve el dato guardado en la posición pos del vector.
 // Si la posicion pos es invalida devuelve NULL.
 // Pre: el vector fue creado.
 // Post: se devolvio el valor guardado en pos.
-void* vector_obtener(vector_t* vector, size_t pos);
+nodo_hash_t* vector_obtener(vector_t* vector, size_t pos);
 
 // Devuelve el tamaño del vector.
 // Pre: el vector fue creado.

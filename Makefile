@@ -1,5 +1,5 @@
 # main
-CFLAGS = -g -O2 -std=c99 -Wall -Wconversion -Wno-sign-conversion -Wbad-function-cast -Wshadow -Wpointer-arith -Wunreachable-code -Wformat=2 -Werror
+CFLAGS = -g -O0 -std=c99 -Wall -Wconversion -Wno-sign-conversion -Wbad-function-cast -Wshadow -Wpointer-arith -Wunreachable-code -Wformat=2 -Werror
 OBJ = o/hash.o o/vector_dinamico.o o/testing.o o/main.o o/nodo_hash.o o/pruebas_catedra.o
 EXEC = main
 CC = gcc
@@ -28,3 +28,6 @@ $(EXEC):$(OBJ)
 	$(CC) -o main $(OBJ)
 
 .PHONY: all clean count
+
+valgrind:
+	valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./$(EXEC)
