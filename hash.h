@@ -59,7 +59,7 @@ void hash_destruir(hash_t *hash);
 /* Iterador del hash */
 
 // Crea iterador
-hash_iter_t *hash_iter_crear(hash_t *hash);
+hash_iter_t *hash_iter_crear(const hash_t *hash);
 
 // Avanza iterador
 bool hash_iter_avanzar(hash_iter_t *iter);

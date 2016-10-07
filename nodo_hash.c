@@ -14,23 +14,7 @@ typedef struct nodo_hash{
 
 #endif
 
-// nodo_hash_t * nodo_hash_crear(const char clave [], void * dato){
-//   nodo_hash_t * nodo_hash = malloc(sizeof(nodo_hash_t));
-//   if(nodo_hash == NULL)
-//     return NULL;
-//
-//   nodo_hash->estado = OCUPADO;
-//   nodo_hash->valor  = dato;
-//   nodo_hash->clave  = malloc(sizeof(char)*(strlen(clave)+1)); //
-//
-//   if(nodo_hash->clave == NULL){
-//     free(nodo_hash);
-//     return NULL;
-//   }
-//
-//   strcpy(nodo_hash->clave, clave);
-//   return nodo_hash;
-// }
+
 
 char* nodo_hash_obtener_clave(nodo_hash_t * nodo){
   return nodo == NULL ? NULL : nodo->clave;

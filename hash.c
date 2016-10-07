@@ -5,9 +5,10 @@
 #include <string.h>
 #define CAP_INICIAL 10
 #define CANT_INICIAL 0
-#define REDIMENSIONAR_POR_MAX 0.7
-#define REDIMENSIONAR_POR_MIN 0.2
+#define REDIMENSIONAR_POR_MAX 0.75
+#define REDIMENSIONAR_POR_MIN 0.25
 #define PORC_REDIMENSIONAR 2
+#define PORC_REDIMENSIONAR4 4
 
 typedef struct hash{
   vector_t * vector;
@@ -21,7 +22,7 @@ size_t probing(size_t index);
 
 size_t obtener_indice_vacio(const char * clave, vector_t* vector);
 
-bool redimensionar(hash_t* hash);
+bool redimensionar(hash_t* hash, size_t tam_redim);
 
 nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave);
 
@@ -50,7 +51,8 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
   if(hash->cant_elementos / vector_obtener_tamanio(hash->vector) > REDIMENSIONAR_POR_MAX){
-    if(!redimensionar(hash))
+	
+    if(!redimensionar(hash,vector_obtener_tamanio(hash->vector)*PORC_REDIMENSIONAR))
       return false;
   }
 
@@ -65,10 +67,18 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 }
 
 void *hash_borrar(hash_t *hash, const char *clave){
+  //SIN ESTO NO FUNCIONA, no toma bien la division
+  int aux_elem = (int)vector_obtener_tamanio(hash->vector) ;
+  int aux_cant = (int)hash->cant_elementos ;
+  float total = (float)aux_cant/(float)aux_elem  ;
+  
+  if(total < REDIMENSIONAR_POR_MIN){	
+	if(!redimensionar(hash,vector_obtener_tamanio(hash->vector)-(vector_obtener_tamanio(hash->vector)/PORC_REDIMENSIONAR4)))
+        return NULL;
+  }
   nodo_hash_t* nodo = buscar_nodo(hash, clave);
   if(nodo_hash_obtener_estado(nodo) == VACIO)
     return NULL;
-
   hash->cant_elementos--;
   return nodo_hash_borrar(nodo);
 }
@@ -94,12 +104,13 @@ void hash_destruir(hash_t *hash){
 
 /************************* FUNCIONES DE HASHING********************************/
 size_t hash(const char *str) {
-    size_t hash = 5381;
-    int c;
-
-    while ((c = *str++))
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
+   
+	unsigned int seed = 0 ;
+	unsigned int hash = seed;
+    while (*str)
+    {
+        hash = hash * 101  +  *str++;
+    }
     return hash;
 }
 
@@ -131,7 +142,7 @@ long buscar_indice(const hash_t *hash, const char *clave){
     nodo = vector_obtener(hash->vector, index);
   }
 
-  return nodo_hash_obtener_estado(nodo) == OCUPADO ? index : -1;
+  return -1; /*nodo_hash_obtener_estado(nodo) == OCUPADO ? index : -1;*/ 
 }
 
 nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave){
@@ -161,8 +172,9 @@ bool guadar_nodo(hash_t *hash, const char *clave, void *dato){
   return result;
 }
 
-bool redimensionar(hash_t* hash){
-  vector_t* nuevo_vector = vector_crear(vector_obtener_tamanio(hash->vector)*PORC_REDIMENSIONAR);
+bool redimensionar(hash_t* hash, size_t tam_redim){
+  
+  vector_t* nuevo_vector = vector_crear(tam_redim);
   if(nuevo_vector == NULL)
     return false;
 
@@ -175,7 +187,7 @@ bool redimensionar(hash_t* hash){
       guadar_nodo(hash, nodo_hash_obtener_clave(nodo), nodo_hash_obtener_valor(nodo));
     }
   }
-
+  
   vector_destruir(viejo_vector, NULL);
   return true;
 }
@@ -186,11 +198,11 @@ bool redimensionar(hash_t* hash){
 /************************* Iterador del hash ********************************/
 
 typedef struct hash_iter{
-	hash_t*  hash_iter;
+	const hash_t*  hash_iter;
 	size_t   actual;
 }hash_iter_t;
 
-hash_iter_t *hash_iter_crear(hash_t *hash){
+hash_iter_t *hash_iter_crear(const hash_t *hash){
 	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
 	if(iter == NULL)
 		return NULL;
