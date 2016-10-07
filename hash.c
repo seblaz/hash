@@ -8,7 +8,6 @@
 #define REDIMENSIONAR_POR_MAX 0.75
 #define REDIMENSIONAR_POR_MIN 0.25
 #define PORC_REDIMENSIONAR 2
-#define PORC_REDIMENSIONAR4 4
 
 typedef struct hash{
   vector_t * vector;
@@ -16,20 +15,27 @@ typedef struct hash{
   size_t cant_elementos;
 }hash_t;
 
+
+// Hashea la clave siempre del mismo modo.
 size_t hashing(const char* clave, size_t maximo);
 
+// Aumenta index en 1.
 size_t probing(size_t index);
 
+// Devuelve un indice en el cual no hay ninguna clave.
 size_t obtener_indice_vacio(const char * clave, vector_t* vector);
 
+// Redimensiona el hash a un nuevo tamano de tam_redim.
 bool redimensionar(hash_t* hash, size_t tam_redim);
 
+// Busca el nodo con la clave en el hash. Si no lo encuentra devuelve NULL.
 nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave);
 
+// Devuelve el indice del nodo que contiene la clave. Si no lo encuentra devuelve -1.
 long buscar_indice(const hash_t *hash, const char *clave);
 
+// Guarda el nodo en una posicion vacia del hash.
 bool guadar_nodo(hash_t *hash, const char *clave, void *dato);
-
 
 
 
@@ -50,9 +56,9 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 }
 
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
-  if(hash->cant_elementos / vector_obtener_tamanio(hash->vector) > REDIMENSIONAR_POR_MAX){
-	
-    if(!redimensionar(hash,vector_obtener_tamanio(hash->vector)*PORC_REDIMENSIONAR))
+  size_t tam_aux = vector_obtener_tamanio(hash->vector); // esta variable auxiliar es necesaria porque los flags con los que se compila no permiten un casteo de lo que devuelve una funcion.
+  if((double) hash->cant_elementos / (double) tam_aux > REDIMENSIONAR_POR_MAX){
+    if(!redimensionar(hash, vector_obtener_tamanio(hash->vector)*PORC_REDIMENSIONAR))
       return false;
   }
 
@@ -67,18 +73,16 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 }
 
 void *hash_borrar(hash_t *hash, const char *clave){
-  //SIN ESTO NO FUNCIONA, no toma bien la division
-  int aux_elem = (int)vector_obtener_tamanio(hash->vector) ;
-  int aux_cant = (int)hash->cant_elementos ;
-  float total = (float)aux_cant/(float)aux_elem  ;
-  
-  if(total < REDIMENSIONAR_POR_MIN){	
-	if(!redimensionar(hash,vector_obtener_tamanio(hash->vector)-(vector_obtener_tamanio(hash->vector)/PORC_REDIMENSIONAR4)))
-        return NULL;
+  size_t tam_aux = vector_obtener_tamanio(hash->vector);
+  if((double) hash->cant_elementos / (double) tam_aux < REDIMENSIONAR_POR_MIN){
+    if(!redimensionar(hash, vector_obtener_tamanio(hash->vector)/PORC_REDIMENSIONAR))
+      return false;
   }
+
   nodo_hash_t* nodo = buscar_nodo(hash, clave);
   if(nodo_hash_obtener_estado(nodo) == VACIO)
     return NULL;
+
   hash->cant_elementos--;
   return nodo_hash_borrar(nodo);
 }
@@ -104,7 +108,7 @@ void hash_destruir(hash_t *hash){
 
 /************************* FUNCIONES DE HASHING********************************/
 size_t hash(const char *str) {
-   
+
 	unsigned int seed = 0 ;
 	unsigned int hash = seed;
     while (*str)
@@ -142,7 +146,7 @@ long buscar_indice(const hash_t *hash, const char *clave){
     nodo = vector_obtener(hash->vector, index);
   }
 
-  return -1; /*nodo_hash_obtener_estado(nodo) == OCUPADO ? index : -1;*/ 
+  return -1;
 }
 
 nodo_hash_t* buscar_nodo(const hash_t* hash, const char * clave){
@@ -173,7 +177,6 @@ bool guadar_nodo(hash_t *hash, const char *clave, void *dato){
 }
 
 bool redimensionar(hash_t* hash, size_t tam_redim){
-  
   vector_t* nuevo_vector = vector_crear(tam_redim);
   if(nuevo_vector == NULL)
     return false;
@@ -187,7 +190,7 @@ bool redimensionar(hash_t* hash, size_t tam_redim){
       guadar_nodo(hash, nodo_hash_obtener_clave(nodo), nodo_hash_obtener_valor(nodo));
     }
   }
-  
+
   vector_destruir(viejo_vector, NULL);
   return true;
 }
@@ -216,7 +219,7 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
   return iter;
 }
 
-bool hash_iter_avanzar(hash_iter_t *iter){ //necesito tener bien la estructura del vector para manejar la manera en que va a avanzar, segun los cambios que me dijiste deberia andar bien asi
+bool hash_iter_avanzar(hash_iter_t *iter){
   if(hash_iter_al_final(iter))
     return false;
 
